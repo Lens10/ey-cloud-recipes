@@ -112,7 +112,7 @@ include_recipe "redis"
 #include_recipe "magento"
 
 #enable Extension modules for a given Postgresql database
-# if ['solo','db_master', 'db_slave'].include?(node[:instance_role])
+if ['solo','db_master', 'db_slave'].include?(node[:instance_role])
   # Extensions that support Postgres >= 9.0
   # postgresql9_autoexplain "dbname"
   # postgresql9_btree_gin "dbname"
@@ -125,7 +125,7 @@ include_recipe "redis"
   # postgresql9_dict_xsyn "dbname"
   # postgresql9_earthdistance "dbname"
   # postgresql9_fuzzystrmatch "dbname"
-  # postgresql9_hstore "dbname"
+  postgresql9_hstore "tagtrue"
   # postgresql9_intarray "dbname"
   # postgresql9_isn "dbname"
   # postgresql9_lo "dbname"
@@ -157,4 +157,7 @@ include_recipe "redis"
   # Admin-Level Contribs
   # postgresql9_pg_buffercache "postgres"
   # postgresql9_pg_freespacemap "postgres"
-# end
+end
+
+include_recipe "xvfb"
+include_recipe "firefox"
