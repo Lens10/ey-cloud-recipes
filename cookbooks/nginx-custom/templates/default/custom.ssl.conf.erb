@@ -1,0 +1,8 @@
+auth_basic  <%= @authentication %>;
+auth_basic_user_file  <%= @authenticaion_user_file %>;
+passenger_enabled <%= @passenger_status %>;
+
+set $domain_name <%= @host %>;
+if ($host != $domain_name) {
+  rewrite ^(.*)$ https://<%= @host %>$1 permanent;
+}
