@@ -161,3 +161,4 @@ end
 
 include_recipe "xvfb"
 include_recipe "firefox"
+include_recipe "nginx-custom"
