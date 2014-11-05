@@ -1,10 +1,1 @@
-auth_basic  <%= @authentication %>;
-auth_basic_user_file  <%= @authenticaion_user_file %>;
-passenger_enabled <%= @passenger_status %>;
-
-# Remove a www with this block
-if ($host ~* www\.(.*)) {
-  set $host_without_www $1;
-  rewrite ^(.*)$ $scheme://$host_without_www$1 permanent; #1
-  #rewrite ^ $scheme://$host_without_www$1request_uri permanent; #2
-}
+rewrite ^(.*)$ https://<%= @host %>$1 permanent;
