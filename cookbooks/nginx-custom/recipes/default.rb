@@ -22,8 +22,6 @@ if ['app_master', 'app', 'solo'].include?(node[:instance_role])
       group node[:owner_name]
       mode 0644
       variables({
-        :authentication => "Restricted",
-        :authenticaion_user_file => "/data/nginx/servers/#{app}/#{app}.users",
         :passenger_status => "on",
         :host => "tagtrue.com"
       })
