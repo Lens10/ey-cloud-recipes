@@ -125,7 +125,7 @@ if ['solo','db_master', 'db_slave'].include?(node[:instance_role])
   # postgresql9_dict_xsyn "dbname"
   # postgresql9_earthdistance "dbname"
   # postgresql9_fuzzystrmatch "dbname"
-  postgresql9_hstore "tagtrue-staging"
+  postgresql9_hstore "tagtrue"
   # postgresql9_intarray "dbname"
   # postgresql9_isn "dbname"
   # postgresql9_lo "dbname"
