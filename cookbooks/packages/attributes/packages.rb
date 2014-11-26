@@ -6,5 +6,4 @@
 #
 # Examples below:
 
-default[:packages] = [{:name => "dev-libs/openssl", :version => "1.0.1j"},
-                      {:name => "dev-util/pstack"}]
+default[:packages] = [{:name => "dev-libs/openssl", :version => "1.0.1j"}]
