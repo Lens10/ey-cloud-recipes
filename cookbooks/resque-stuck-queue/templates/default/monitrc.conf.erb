@@ -1,0 +1,6 @@
+check process resque-stuck-queue_<%= @app_name %>
+  with pidfile /var/run/engineyard/<%= @app_name %>/resque-stuck-queue.pid
+  start program = "cd /data/<%= @app_name %>/current;  RAILS_ENV=<%= @rails_env %> rake resque:stuck_queue_start" with timeout 90 seconds
+  stop program = "cd /data/<%= @app_name %>/current;  RAILS_ENV=<%= @rails_env %> rake resque:stuck_queue_stop" with timeout 90 seconds
+  if totalmem is greater than 300 MB for 2 cycles then restart # eating up memory?
+  group <%= @app_name %>_resque-stuck-queue
