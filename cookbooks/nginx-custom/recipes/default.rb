@@ -6,13 +6,14 @@
 if ['app_master', 'app', 'solo'].include?(node[:instance_role])
   node[:applications].each do |app, data|
 
+    host = "staging.tagtrue.com"
     template "/data/nginx/servers/#{app}/custom.conf" do
       source 'custom.conf.erb'
       owner node[:owner_name]
       group node[:owner_name]
       mode 0644
       variables({
-        :host => "staging.tagtrue.com"
+        :host => host
       })
     end
 
@@ -22,10 +23,8 @@ if ['app_master', 'app', 'solo'].include?(node[:instance_role])
       group node[:owner_name]
       mode 0644
       variables({
-        :authentication => "Restricted",
-        :authenticaion_user_file => "/data/nginx/servers/#{app}/#{app}.users",
         :passenger_status => "on",
-        :host => "staging.tagtrue.com"
+        :host => host
       })
     end
 
