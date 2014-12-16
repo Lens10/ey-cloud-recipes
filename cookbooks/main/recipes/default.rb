@@ -162,4 +162,5 @@ end
 include_recipe "xvfb"
 include_recipe "firefox"
 include_recipe "nginx-custom"
-include_recipe "resque-stuck-queue"
+# include_recipe "resque-stuck-queue"
+include_recipe "rake-tasks"

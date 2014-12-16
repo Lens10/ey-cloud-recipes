@@ -1,0 +1,6 @@
+check process <%= @rake_task[:process_name] %><%= @app_name %>
+  with pidfile /var/run/engineyard/<%= @rake_task[:folder_name] %>/<%= @app_name %>/<%= @rake_task[:file_name] %>.pid
+  start program = "/data/<%= @app_name %>/shared/bin/<%= @rake_task[:task_name] %> <%= @app_name %> start <%= @rails_env %>" with timeout 120 seconds
+  stop program = "/data/<%= @app_name %>/shared/bin/<%= @rake_task[:task_name] %> <%= @app_name %> stop <%= @rails_env %>" with timeout 120 seconds # on purpose
+  if totalmem is greater than 300 MB for 2 cycles then restart # eating up memory?
+  group <%= @app_name %>_<%= @rake_task[:process_name] %>
