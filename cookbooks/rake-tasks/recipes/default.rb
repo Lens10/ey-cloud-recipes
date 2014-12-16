@@ -9,7 +9,7 @@ if ['util'].include?(node[:instance_role])
   end
 
   node[:applications].each do |app, data|
-    node[:rake_tasks].each do |rake_task|
+    node[:rake_tasks].each do |rake_task_name, rake_task|
       template "/etc/monit.d/#{rake_task[:process_name]}_#{app}.monitrc" do
         owner 'root'
         group 'root'
