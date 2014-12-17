@@ -1,0 +1,6 @@
+passenger_enabled <%= @passenger_status %>;
+
+set $domain_name <%= @host %>;
+if ($host != $domain_name) {
+  rewrite ^(.*)$ https://<%= @host %>$1 permanent;
+}

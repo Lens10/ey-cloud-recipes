@@ -1,0 +1,127 @@
+#!/bin/sh
+# Shamelessly stolen from the resque wrapper and modified for just scheduler.
+#
+# This script starts and stops the daemon
+# This script belongs in /engineyard/bin/resque
+#
+
+usage() {
+  echo "Usage: $0 <appname> {start|stop} <environment>"
+  exit 1
+}
+
+if [ $# -lt 3 ]; then usage; fi
+
+if [ "`whoami`" != "root" ]; then
+  logger -t `basename $0` -s "Must be run as root" 
+  exit 1
+fi
+
+# Basic setup of default values
+APP=$1; ACTION=$2; RACK_ENV=$3;
+
+# Paths
+PATH=/data/$APP/current/ey_bundler_binstubs:$PATH
+CURDIR=`pwd`
+
+APP_DIR="/data/${APP}"
+APP_ROOT="${APP_DIR}/current"
+APP_SHARED="${APP_DIR}/shared"
+APP_CONFIG="${APP_SHARED}/config"
+
+clean_exit() {
+  cd $CURDIR
+  exit $RESULT
+}
+
+WORKER_REF="<%= @rake_task[:file_name] %>"
+LOG_FILE="/data/$APP/current/log/$WORKER_REF.log"
+LOCK_FILE="/tmp/$WORKER_REF.monit-lock"
+PID_FILE="/var/run/engineyard/<%= @rake_task[:folder_name] %>/$APP/$WORKER_REF.pid"
+GEMFILE="$APP_ROOT/Gemfile"
+RAKE="rake"
+
+if [ -f $GEMFILE ];then
+  RAKE="$APP_ROOT/ey_bundler_binstubs/rake"
+fi
+
+if [ -d $APP_ROOT ]; then
+  USER=$(stat -L -c"%U" $APP_ROOT)
+  export HOME="/home/$USER" 
+
+  # Fix for SD-3786 - stop sending in VERBOSE= and VVERBOSE= by default
+  if declare -p VERBOSE >/dev/null 2>&1; then export V="VERBOSE=$VERBOSE"; fi
+  if declare -p VVERBOSE >/dev/null 2>&1; then export VV="VVERBOSE=$VVERBOSE"; fi
+
+  # Older versions of sudo need us to call env for the env vars to be set correctly
+  COMMAND="/usr/bin/env $V $VV APP_ROOT=${APP_ROOT} RACK_ENV=${RACK_ENV} RAILS_ENV=${RACK_ENV} MERB_ENV=${RACK_ENV} $RAKE -f ${APP_ROOT}/Rakefile <%= @rake_task[:task] %>"
+
+  if [ ! -d /var/run/engineyard/<%= @rake_task[:folder_name] %>/$APP ]; then
+    mkdir -p /var/run/engineyard/<%= @rake_task[:folder_name] %>/$APP
+  fi
+
+  # handle the second param, don't start if already existing
+  if [ -f $LOCK_FILE ]; then
+    logger -t "<%= @rake_task[:monit_process_name] %>[$$]:" "Monit already messing with $WORKER_REF (`cat $LOCK_FILE`)"
+    clean_exit 1
+  else 
+    echo $$ > $LOCK_FILE
+  fi
+
+  case "$ACTION" in
+    start)
+      cd /data/$APP/current
+      logger -t "<%= @rake_task[:monit_process_name] %>[$$]:" "Starting <%= @rake_task[:task_name] %> worker $WORKER_REF"
+      if [ -f $PID_FILE ]; then
+        PID=`cat $PID_FILE`
+        if [ -d /proc/$PID ]; then
+          logger -t "<%= @rake_task[:monit_process_name] %>[$$]:" "<%= @rake_task[:task_name] %> worker $WORKER_REF is already running with $PID."
+          RESULT=1
+        else
+          rm -f $PID_FILE
+          logger -t "<%= @rake_task[:monit_process_name] %>[$$]:" "Removing stale worker file ($PID_FILE) for pid $PID"
+        fi
+      fi
+      if [ ! -f $PID_FILE ]; then
+        exec su -c"$COMMAND" $USER >> $LOG_FILE 2>&1 &
+        RESULT=$?
+        logger -t "<%= @rake_task[:monit_process_name] %>[$$]:" "Started with pid $! and exit $RESULT"
+        #while [ ! -f $PID_FILE ]
+        #do 
+          echo $! > $PID_FILE
+          sleep .1
+        #done
+      else
+        RESULT=1
+      fi
+      rm $LOCK_FILE
+      clean_exit $RESULT
+      ;;
+    stop)
+      logger -t "<%= @rake_task[:monit_process_name] %>[$$]:" "Stopping <%= @rake_task[:task_name] %> worker $WORKER_REF"
+      if [ -f $PID_FILE ]; then
+        kill -TERM `cat $PID_FILE` && sleep 30
+          SLEEP_COUNT=0
+          while [ -e /proc/$child ]; do
+            sleep 15
+            let "SLEEP_COUNT+=15"
+            if(( "$SLEEP_COUNT" > 30 )); then
+              kill -9 `cat $PID_FILE` 2>/dev/null; true
+              logger -t "<%= @rake_task[:monit_process_name] %>[$$]:" "Murdering <%= @rake_task[:task_name] %> worker with $PID for $WORKER_REF"
+              break
+            fi
+          done
+      fi
+      [ -e "$PID_FILE" -a ! -d /proc/$PID ] && rm -f $PID_FILE
+      rm $LOCK_FILE
+      clean_exit 0
+      ;;
+    *)
+      usage
+      rm $LOCK_FILE
+      ;;
+    esac
+else
+  echo "/data/$APP/current doesn't exist."
+  usage
+fi
