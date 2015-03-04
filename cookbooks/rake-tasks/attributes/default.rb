@@ -16,4 +16,13 @@ default[:rake_tasks]['resque-stuck-queue'] = {
   :monit_process_name => "monit-resque-stuck-queue"
 }
 
+default[:rake_tasks]['newrelic_aws_s3'] = {
+  :task => "newrelic:monitor_aws_s3",
+  :file_name => "newrelic_aws_s3",
+  :folder_name => "newrelic_aws_s3",
+  :task_name => "newrelic_aws_s3",
+  :process_name => "newrelic_aws_s3",
+  :monit_process_name => "monit-newrelic_aws_s3"
+}
+
 # default[:rake_tasks][:tasks] = ['resque-stuck-queue']
