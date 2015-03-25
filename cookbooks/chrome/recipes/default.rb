@@ -4,6 +4,6 @@
 #
 
 if ['solo', 'util'].include?(node[:instance_role])
-  package "www-client/google-chrome:stable"
+  package "www-client/google-chrome"
 end
 
