@@ -1,2 +1,2 @@
-default[:chrome][:version] = "41.0.2272.101_p1"
+default[:chrome][:version] = "23.0.1271.64_p165188"
 
