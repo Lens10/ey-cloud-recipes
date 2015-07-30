@@ -19,5 +19,12 @@ default[:firefox]["33"] = {
   :firefox_dir => 'firefox'
 }
 
-default[:firefox][:default_version] = "33"
-default[:firefox][:other_versions] = ["28", "32"]
+default[:firefox]["38"] = {
+  :url => "http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/38.0/linux-x86_64/en-US/firefox-38.0.tar.bz2",
+  :filename => "firefox-38.0.tar.bz2",
+  :sha => "a37a42035062385ed664521e6fcc64b6acc3e100",
+  :firefox_dir => 'firefox'
+}
+
+default[:firefox][:default_version] = "38"
+default[:firefox][:other_versions] = ["28", "32", "33"]
